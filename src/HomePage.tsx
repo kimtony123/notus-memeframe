@@ -2,6 +2,41 @@ import { useEffect, useState } from 'react';
 import { message, createDataItemSigner, result } from "@permaweb/aoconnect";
 import { PermissionType } from 'arconnect'
 
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
+import { InView } from 'react-intersection-observer'
+import {
+  Button,
+  Container,
+  Divider,
+  Grid,
+  Header,
+  Icon,
+  Image,
+  List,
+  Menu,
+  Segment,
+  Sidebar,
+  MenuMenu,
+  MenuItem,
+  GridColumn,
+  GridRow,
+  FormField,
+  Form,
+  Checkbox,
+  FormGroup,
+  FormInput,
+  FormButton,
+  Table,
+  TableHeader,
+  TableRow,
+  TableHeaderCell,
+  TableBody,
+  TableCell,
+  TableFooter,
+} from 'semantic-ui-react'
+
+
 const permissions: PermissionType[] = [
   'ACCESS_ADDRESS',
   'SIGNATURE',
@@ -33,7 +68,7 @@ interface Proposal {
     stakers: StakerDetails;
 }
 
-const WHAT = "Fq4KbPbzALhTnb-jvq040o0Na7O5H6Q_Cn52YQ3ZBfI"
+const NOT = "Fq4KbPbzALhTnb-jvq040o0Na7O5H6Q_Cn52YQ3ZBfI"
 const CRED = "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc"
 
 function HomePage () {
@@ -109,7 +144,7 @@ function HomePage () {
                 process: CRED,
                 tags: [
                     { name: 'Action', value: 'Transfer' },
-                    { name: 'Recipient', value: WHAT },
+                    { name: 'Recipient', value: NOT },
                     { name: 'Quantity', value: credUnits }
                 ],
                 signer: createDataItemSigner(window.arweaveWallet),
@@ -145,7 +180,7 @@ function HomePage () {
         var whatUnits = units.toString()
         try {
             const getStakeMessage = await message({
-                process: WHAT,
+                process: NOT,
                 tags: [
                     { name: 'Action', value: 'Stake' },
                     { name: 'Quantity', value: whatUnits },
@@ -156,7 +191,7 @@ function HomePage () {
             try {
                 let { Messages, Error } = await result({
                     message: getStakeMessage,
-                    process: WHAT,
+                    process: NOT,
                 });
                 if (Error) {
                     alert("Error handling staking:" + Error);
@@ -179,7 +214,7 @@ function HomePage () {
     const propose = async () => {
         try {
             const getPropMessage = await message({
-                process: WHAT,
+                process: NOT,
                 tags: [
                     { name: 'Action', value: 'Propose' },
                     { name: 'Name', value: propName },
@@ -191,7 +226,7 @@ function HomePage () {
             try {
                 let { Messages, Error } = await result({
                     message: getPropMessage,
-                    process: WHAT,
+                    process: NOT,
                 });
                 if (Error) {
                     alert("Error handling staking:" + Error);
@@ -239,7 +274,7 @@ function HomePage () {
                     }
                     const balanceTag = Messages[0].Tags.find((tag: Tag) => tag.name === 'Balance')
                     const balance = balanceTag ? parseFloat((balanceTag.value / 1000).toFixed(4)) : 0;
-                    if (process === WHAT) {
+                    if (process === NOT) {
                         setWhatBalance(balance)
                     }
                     if (process === CRED) {
@@ -252,7 +287,7 @@ function HomePage () {
                 console.error(error);
             }
         };
-        fetchBalance(WHAT)
+        fetchBalance(NOT)
         fetchBalance(CRED)
     }, [address, swapSuccess, stakeSuccess])
 
@@ -260,7 +295,7 @@ function HomePage () {
         const fetchProposals = async () => {
             try {
                 const messageResponse = await message({
-                    process: WHAT,
+                    process: NOT,
                     tags: [
                         { name: 'Action', value: 'Proposals' },
                     ],
@@ -270,7 +305,7 @@ function HomePage () {
                 try {
                     let { Messages, Error } = await result({
                         message: getProposalsMessage,
-                        process: WHAT,
+                        process: NOT,
                     });
                     if (Error) {
                         alert("Error fetching proposals:" + Error);
@@ -303,10 +338,21 @@ function HomePage () {
     }, [])
 
 	return (
-		<div>
-            {/* NAV BAR  */}
-            <nav className="flex justify-between items-center p-4 border-b border-gray-200 shadow-sm">
-                <img alt="logo" src="logox.png" width={"60px"} />
+        <Container style={{ marginTop: '3em' }}>
+
+        <Header as='h2' dividing>
+          Notus.
+        </Header>
+    
+        <Grid columns={1} doubling>
+          <Grid.Column>
+
+            <Menu>
+            <Button icon='heart' color ="green" />
+            <Button color ="green" > Home </Button>
+            <Button color ="green" > How It works.</Button>
+
+                <MenuMenu position='right'>
                 {address ?
                     (
                         <p>
@@ -315,80 +361,157 @@ function HomePage () {
                         </p>
                     ) :
                     (
-                        <button onClick={fetchAddress} className="bg-black hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
-                            Connect
-                        </button>
+                        <Button onClick={fetchAddress} primary>
+                            Connect Wallet.
+                        </Button>
                     )
                 }
-            </nav>
+                </MenuMenu>
+            </Menu>
+          </Grid.Column>
+        </Grid>
+    
+        <Grid columns={2} stackable>
+          <Grid.Column  width={12}>
+            <Header as='h1'> What is Notus DAO.</Header>
+            <p>Notus DAO is a decentralized autonomous organization that operates within AO computer ecosystem. It enables community-driven decision-making, where token holders have the power to propose and vote on key initiatives and changes. This structure ensures transparency, accountability, and equitable distribution of power among its members, fostering a collaborative environment for the development and operation of innovative weather trading products. </p>
+            <Header as='h2'>Notus  Weather Trading Products.</Header>
 
-            {/* ABOVE FOLD - SWAP AND GENERAL INFO  */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-20">
-                <div>
-                    <img className="w-3/4 mx-auto" src="what.webp" alt="what!?" />
-                </div>
-                <div className="px-10">
-                    <div className='grid grid-cols-2 gap-2 my-8'>
-                        <div className='border-r border-black'>
+            <Header as='h3'>Notus weather trading products</Header>
+            <p> Notus offers a suite of advanced weather trading products designed to allow users to speculate on weather-related events. The products include binary options contracts tied to various weather conditions such as temperature, precipitation, and wind speed. By providing access to diverse weather derivatives, Notus enables traders and businesses to manage risk and potentially profit from weather variability.            </p>
+
+            <Header as='h3'> Notus Weather trading App. </Header>
+            <p> The Notus Weather Trading App is a user-friendly mobile and web application that facilitates the trading of weather-related financial instruments. It provides real-time market data, weather forecasts, and intuitive trading interfaces that allow users to easily buy and sell weather derivatives (currently Temperature  Binary Options) .
+            </p>
+            <Header as='h3'>Notus Weather trading Agents. </Header>
+            <p> Notus Weather Agents are decentralized, AI-driven entities that operate within the Notus platform, providing automated trading and analysis based on real-time weather data. These agents leverage advanced algorithms and machine learning to predict weather patterns and market responses, executing trades on behalf of users to optimize their portfolios. By integrating weather intelligence and autonomous trading, Notus Weather Agents enhance the platform's efficiency and enable users to capitalize on weather trends with minimal manual intervention. </p>
+            
+            <Header as='h3'>Notus Crypto binary trading app. </Header>
+            <p>The Notus Crypto Binary Trading App is a specialized platform for trading binary options on various cryptocurrencies and weather derivatives. It allows users to place binary bets on the price movements of assets (currently Bitcoin , Ethereum and Areweave). offering a straightforward way to engage in short-term speculative trading.            </p>         
+         
+          </Grid.Column>
+          
+
+          <Grid.Column  width={4}>
+
+            <Header as='h1'>Important Links.</Header>
+
+            <Divider />
+            <Header as='h4'>Notus Landing page.</Header>
+                <Button href="https://notus-landing-page-c2ut.vercel.app/" color ="green" > Home </Button>
+
+            <Header as='h4'>Notus Weather trading Front-end .</Header>
+                <Button href='https://notus-front-end-i7kt.vercel.app/' link color ="green" > View  </Button>
+
+                <Divider />
+            <Header as='h4'>Notus Weather tading AO-process.</Header>
+                <Button href="https://gist.github.com/kimtony123/f40b06e95dc5644818e9055727db4197" color ="green" > View </Button>
+
+                <Divider />
+            <Header as='h4'>Notus Crypto Trading AO process.</Header>
+                <Button  href="https://gist.github.com/kimtony123/4f26f31ed4a918afdb1602be16c06693" color ="green" > Home </Button>
+
+                <Divider />
+            <Header as='h4'>Notus Memeframe.</Header>
+                <Button href="https://notus-memeframe.vercel.app/" color ="green" > Home </Button>
+                <Divider />
+          </Grid.Column>
+        </Grid>
+
+        <Grid columns={2} divided>
+            <GridRow stretched>
+                <GridColumn width={9}>
+                <Form>
+                    <h1 style={{display: 'flex',  justifyContent:'center', alignItems:'center'}} > Make your Own Proposal.</h1>
+                        <FormField>
+                            <label>Name of the Proposal.</label>
+                            <input type="text"
+                            name="propName"
+                            placeholder="Name of proposal"
+                            value={propName}
+                            onChange={handleInputChange}
+                            />
+                        </FormField>
+                        <FormField>
+                            <label>The Pattern to be matched for code execution. </label>
+                             <textarea name="propPattern"
+                            placeholder="The pattern to match for your code to be executed"
+                            value={propPattern}
+                            onChange={handleTextAreaChange}
+                             />
+                        </FormField>
+                        <FormField>
+                            <label> The Code to be Executed.</label>
+                            <textarea name="propHandle"
+                            placeholder="The code to be executed once a pattern is recognised"
+                            value={propHandle}
+                            onChange={handleTextAreaChange}
+                             />
+                        </FormField>
+                    <FormField>
+                    </FormField>
+                    <Button  primary style={{display: 'flex',  justifyContent:'center', alignItems:'center'}} type='submit'>Make Proposal.</Button>
+                </Form>
+                </GridColumn >      
+                            <GridRow>
+                            <GridColumn>
                             <p className='text-lg md:text-center'>
                                 CRED: <span className='font-bold'>{credBalance}</span>
                             </p>
-                        </div>
-                        <div>
                             <p className='text-lg md:text-center'>
                                 NOT: <span className='font-bold'>{whatBalance}</span>
                             </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-center space-x-2">
-                    <input
-                        type="text"
-                        name="swap"
-                        placeholder="Enter value"
-                        value={credValue}
-                        onChange={handleInputChange}
-                        className="py-2 px-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <button
-                        className="py-2 px-4 bg-black text-white font-semibold rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                        onClick={swap}
-                    >
-                        Swap
-                    </button>
-                    </div>
-                    <p className='text-center text-sm text-slate-600 mt-2 mb-10'>
-                        This will swap CRED for NOT.
-                    </p>
-                    <hr />
-                    <p className='text-lg my-4'>
-                        Climate risks mitigation spending will reach $112 billion in the next 6 years. Mosts of the spending will be in building more robust forecasting models.
-                    </p>
-                    <p className='text-lg my-4'>
-                        The biggest spending in weather models/Agents is compute A0 computer solves this.
-                    </p>
-                    <p className='text-lg my-4'>
-                        at Notus we want this models to be built on AO computer. To incentivize building on AO , we have built an Options Trading contract market.
-                    </p>
-                    <p className='text-lg my-4'>
-                        You will get <span className='font-bold'>1 NOT for the 1st CRED</span> you send.It then decays linearly, until you get <span className='font-bold'>0 NOT for the 10,000th CRED</span> you send. 
-                    </p>
-                    <p className='text-lg my-4'>
-                        This is to incentivize a diverse set of early contributors and keep power well distributed, rather than granting too much power to early contributors who earn the most CRED.
-                    </p>
-                    <p className='text-lg my-4'>
-                        All Notus holders will be the controllers of Notus treasury,they can make proposals on spending.
-                    </p>
-                </div>
-            </div>
+                            </GridColumn>
+                            <GridColumn width={4} >
+                            <Form>
+                                <FormGroup>
+                                     <FormInput
+                                      type="text"
+                                      name="swap"
+                                      placeholder="Enter AOCRED amount"
+                                      value={credValue}
+                                      onChange={handleInputChange}
+                                     />
+                                    <FormButton onClick={swap} primary content='SWAP' />
+                                </FormGroup>
+                            </Form>
+                                
+                            </GridColumn>
+                            </GridRow>
+                <GridColumn>
+                    
+                </GridColumn>
+                <GridColumn>
+                    <Form>
+                    <h1 style={{display: 'flex',  justifyContent:'center', alignItems:'center'}} > Vote on a proposal</h1>
+                        <FormField>
+                            <label>Name Of Proposal</label>
+                            <input type="text"
+                            name="stakeName"
+                            placeholder="Name of proposal"
+                            value={stakeName}
+                            onChange={handleInputChange} 
+                            />
+                        </FormField>
+                        <FormField>
+                            <label> Value to stake.</label>
+                            <input type="text"
+                            name="stakeValue"
+                            placeholder="Value to stake"
+                            value={stakeValue}
+                            onChange={handleInputChange}
+                             />
+                        </FormField>
+                    <FormField>
+                    </FormField>
+                    <Button onClick={stake} primary type='submit'> Vote.</Button>
+                </Form>        
+                </GridColumn>                 
+    </GridRow>
 
-            {/* BELOW FOLD - PROPOSALS  */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-20">
-                <div className="lg:ml-20 px-10">
-                    <p className='text-4xl font-bold underline'>
-                        Proposals
-                    </p>
-
-                    <div className='relative rounded-xl overflow-auto'>
+   
+  <div className='relative rounded-xl overflow-auto'>
+  <h1 style={{display: 'flex',  justifyContent:'center', alignItems:'center'}} > Submitted Proposals.</h1>
                         <div className='shadow-sm overflow-hidden my-8'>
                             <div className="table border-collapse table-auto w-full text-sm">
                                 <div className="table-header-group">
@@ -418,77 +541,10 @@ function HomePage () {
                             </div>
                         </div>
                     </div>
-                    
-                    
-                    <p className='text-4xl font-bold underline'>
-                        Stake
-                    </p>
-                    <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0 items-center justify-center mt-8">
-                        <input
-                            type="text"
-                            name="stakeName"
-                            placeholder="Name of proposal"
-                            value={stakeName}
-                            onChange={handleInputChange}
-                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <input
-                            type="text"
-                            name="stakeValue"
-                            placeholder="Value to stake"
-                            value={stakeValue}
-                            onChange={handleInputChange}
-                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <button
-                            className="py-2 px-4 bg-black text-white font-semibold rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                            onClick={stake}
-                        >
-                            Stake
-                        </button>
-                    </div>
-                    <p className='text-center text-sm text-slate-600 mt-2 mb-10'>
-                        This will stake NOT on your chosen proposal.
-                    </p>
-                </div>
-                <div className="px-10">
-                    <p className='text-4xl font-bold underline'>
-                        Make Your Own Proposal
-                    </p>
-                    <div className="flex flex-col space-y-4 flex-row space-x-2 mt-8">
-                        <input
-                            type="text"
-                            name="propName"
-                            placeholder="Name of proposal"
-                            value={propName}
-                            onChange={handleInputChange}
-                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <textarea
-                            name="propPattern"
-                            placeholder="The pattern to match for your code to be executed"
-                            value={propPattern}
-                            onChange={handleTextAreaChange}
-                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <textarea
-                            name="propHandle"
-                            placeholder="The code to be executed once a pattern is recognised"
-                            value={propHandle}
-                            onChange={handleTextAreaChange}
-                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <button
-                            className="py-2 px-4 bg-black text-white font-semibold rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                            onClick={propose}
-                        >
-                            Propose
-                        </button>
-                    </div>
-                </div>
-            </div>
-			
-		</div>
+
+  </Grid>
+      </Container>
+
 	);
 }
 
